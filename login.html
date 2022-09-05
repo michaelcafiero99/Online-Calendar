@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <title>login</title>
+        <!-- https://www.w3schools.com/howto/howto_css_calendar.asp -->
+        <style>
+            * {box-sizing: border-box;}
+            ul {list-style-type: none;}
+            body {font-family: Verdana, sans-serif;}
+
+            .month {
+              padding: 70px 25px;
+              width: 100%;
+              background: #87e1f1;
+              text-align: center;
+            }
+
+            .month ul {
+              margin: 0;
+              padding: 0;
+            }
+
+            .month ul li {
+              color: rgb(120, 229, 248);
+              font-size: 20px;
+              text-transform: uppercase;
+              letter-spacing: 3px;
+            }
+
+            .month .prev {
+              float: left;
+              padding-top: 10px;
+            }
+
+            .month .next {
+              float: right;
+              padding-top: 10px;
+            }
+
+            .weekdays {
+              margin: 0;
+              padding: 10px 0;
+              background-color: rgb(44, 69, 73);
+            }
+            .weekdays li {
+              display: inline-block;
+              width: 13.6%;
+              color: rgb(188, 205, 207);
+              text-align: center;
+            }
+
+            .days {
+              padding: 10px 0;
+              background: rgb(114, 166, 167);
+              margin: 0;
+            }
+
+            .days li {
+              list-style-type: none;
+              display: inline-block;
+              width: 13.6%;
+              text-align: center;
+              margin-bottom: 50px;
+              font-size:20px;
+              color: black;
+            }
+            
+            .container{
+                align-items: center;
+                display: flex;
+            }
+            
+            </style>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    </head>
+    <body>
+        <form>
+            <label>username: <input type = "text" id = "name" /></label>
+            <label>password: <input type = "password" id = "password"></label>
+            <input type = "submit" value = "log in" id = "logIn" />
+        </form>
+
+        <form>
+            <label>username: <input type = "text" id = "newName" /></label>
+            <label>password: <input type = "password" id = "newPassword"></label>
+            <label>first name: <input type = "text" id = "newFname" /></label>
+            <label>last name: <input type = "text" id = "newLname"></label>
+            <input type = "submit" value = "sign up" id = "signUp" />
+        </form>
+        <div class = "logout">
+            <input type= "button" value = "log out">
+        </div>
+        <div class = "container">
+            <p id = "currMonth"> </p>
+            <p> / </p>
+            <p id = "currYear"> </p>
+        </div>
+        <ul class="weekdays">
+            <li>Mo</li>
+            <li>Tu</li>
+            <li>We</li>
+            <li>Th</li>
+            <li>Fr</li>
+            <li>Sa</li>
+            <li>Su</li>
+          </ul>
+
+          <ul class="days">
+            <li id = "slot1"></li>
+            <li id = "slot2"></li>
+            <li id = "slot3"></li>
+            <li id = "slot4"></li>
+            <li id = "slot5"></li>
+            <li id = "slot6"></li>
+            <li id = "slot7"></li>
+            <li id = "slot8"></li>
+            <li id = "slot9"></li>
+            <li id = "slot10"></li>
+            <li id = "slot11"></li>
+            <li id = "slot12"></li>
+            <li id = "slot13"></li>
+            <li id = "slot14"></li>
+            <li id = "slot15"></li>
+            <li id = "slot16"></li>
+            <li id = "slot17"></li>
+            <li id = "slot18"></li>
+            <li id = "slot19"></li>
+            <li id = "slot20"></li>
+            <li id = "slot21"></li>
+            <li id = "slot22"></li>
+            <li id = "slot23"></li>
+            <li id = "slot24"></li>
+            <li id = "slot25"></li>
+            <li id = "slot26"></li>
+            <li id = "slot27"></li>
+            <li id = "slot28"></li>
+            <li id = "slot29"></li>
+            <li id = "slot30"></li>
+            <li id = "slot31"></li>
+            <li id = "slot32"></li>
+            <li id = "slot33"></li>
+            <li id = "slot34"></li>
+            <li id = "slot35"></li>
+            <li id = "slot36"></li>
+            <li id = "slot37"></li>
+            <li id = "slot38"></li>
+            <li id = "slot39"></li>
+            <li id = "slot40"></li>
+            <li id = "slot41"></li>
+            <li id = "slot42"></li>
+          </ul>
+        <form>
+            <input type = "submit" value = "previous Month" id = "prevMonth" />
+            <input type = "submit" value = "next Month" id = "nextMonth" />
+            <input type = "submit" value = "back to calendar" id = "back" />
+        </form>
+        <div id = "calendarLabels">
+            <h4>High Priority Events This Month</h4>
+        </div>
+        <div id = "highPriorities"></div>
+        <div id = "calendarLabels2">
+            <h4>Today's To-Do List</h4>
+        </div>
+        <div id = "todo"></div>
+        <input type = "button" value = "new event" id = "newEvent" />
+        <label id="sortingLabel">sort by:</label>
+
+        <select name="sortBy" id="sorting">
+            <option value="">-</option>
+            <option value="priority">priority</option>
+            <option value="title">title</option>
+            <option value="time">time</option>
+        </select>
+        <input type="button" id="sortBtn" value="Sort" />
+
+        <div id = "events"></div>
+        <div id = "createEvent"></div>
+        <input type = "button" value = "back to events" id = "backEvents" />
+        <script>            
+
+            
+            // function to draw high priorities under calendar.
+            const showPriorities = function(response, event){
+                let ev = document.getElementById("highPriorities");
+                    while (ev.lastChild) {
+                        ev.removeChild(ev.lastChild);
+                    }
+                
+                for(let i = 0; i<response.eventTitles.length; i++){
+                    //display the event at index i
+                    let eventTitleP = "eventTitleDispP" + i;
+                    let newTimeIdP = "eventTimeDispP" + i;
+
+                    const eventTitleDispP = document.createElement("p");
+                    eventTitleDispP.setAttribute("id", eventTitleP);
+                    document.getElementById("highPriorities").appendChild(eventTitleDispP);
+                    document.getElementById(eventTitleP).textContent = response.eventTitles[i];
+                
+                    const eventTimeDispP = document.createElement("p");
+                    eventTimeDispP.setAttribute("id", newTimeIdP);
+                    document.getElementById("highPriorities").appendChild(eventTimeDispP);
+                    document.getElementById(newTimeIdP).textContent = response.eventDates[i];
+                }
+            }
+            // function to draw the to-do list
+            const showToDo = function(response, event){
+                let ev4 = document.getElementById("todo");
+                while (ev4.lastChild) {
+                    ev4.removeChild(ev4.lastChild);
+                }
+                for(let i = 0; i<response.eventTitles.length; i++){
+                    //display the event at index i
+                    let eventTitleD = "eventTitleDispTD" + i;
+                    const eventTitleDispD = document.createElement("p");
+                    eventTitleDispD.setAttribute("id", eventTitleD);
+                    document.getElementById("todo").appendChild(eventTitleDispD);
+                    document.getElementById(eventTitleD).textContent = response.eventTitles[i];
+                }
+            }
+            $(document).ready(function(){
+
+                // displays the events in response.
+                setEvents = function(response, event){
+                    console.log("setEvents: ");
+                    console.log(response);
+
+                    // hide labels (high priority and to do list)
+                    $("#calendarLabels").hide();
+                    $("#calendarLabels2").hide();
+                    $(".weekdays").hide();
+                    $(".logout").hide();
+
+                    // display sort by drop down.
+                    $("#sortingLabel").show();
+                    $("#sorting").show();
+                    $("#sortBtn").show();
+
+                    // delete everything in to-do list
+                    let ev4 = document.getElementById("todo");
+                    while (ev4.lastChild) {
+                        ev4.removeChild(ev4.lastChild);
+                    }
+                    let ev3 = document.getElementById("highPriorities");
+                    while (ev3.lastChild) {
+                        ev3.removeChild(ev3.lastChild);
+                    }
+                    $("#editPriority").remove();
+
+                    // remove edit text boxes.
+                    $("#editEventTitleId").remove();
+                    $("#editEventContentId").remove();
+                    $("#editEventTimeId").remove();
+                    $("#editSaveEventBtn").remove();
+                    event.preventDefault();
+                    // remove everything in events and hide them.
+                    let ev = document.getElementById("events");
+                    while (ev.lastChild) {
+                        ev.removeChild(ev.lastChild);
+                    }
+                    // show the events
+                    $('#events').show();
+                    for(let i = 0; i<response.eventIds.length; i++){
+                        //display the event at index i
+                        let newEventId = "eventTitleDisp" + response.eventIds[i];
+                        let newContentId = "eventContentDisp" + response.eventIds[i];
+                        let newTimeId = "eventTimeDisp" + response.eventIds[i];
+                        let newPriorityId = "eventPriority" + i;
+
+                        const eventTitleDisp = document.createElement("p");
+                        eventTitleDisp.setAttribute("id", newEventId);
+                        document.getElementById("events").appendChild(eventTitleDisp);
+                        document.getElementById(newEventId).textContent = response.eventTitles[i];
+
+                        const eventContentDisp = document.createElement("p");
+                        eventContentDisp.setAttribute("id", newContentId);
+                        document.getElementById("events").appendChild(eventContentDisp);
+                        document.getElementById(newContentId).textContent = response.eventContents[i];
+                    
+                        const eventTimeDisp = document.createElement("p");
+                        eventTimeDisp.setAttribute("id", newTimeId);
+                        document.getElementById("events").appendChild(eventTimeDisp);
+                        document.getElementById(newTimeId).textContent = response.eventDates[i];
+
+                        const eventPriorityDisp = document.createElement("p");
+                        eventPriorityDisp.setAttribute("id", newPriorityId);
+                        document.getElementById("events").appendChild(eventPriorityDisp);
+                        document.getElementById(newPriorityId).textContent = response.eventPriorities[i];
+
+                        // create edit and delete event buttons.
+                        let editEventId = "eventEdit" + response.eventIds[i];
+                        let deleteEventId = "eventDelete" + response.eventIds[i];
+
+                        const editE = document.createElement("input");
+                        editE.setAttribute("type", "button");
+                        editE.setAttribute("id", editEventId);
+                        editE.setAttribute("value", "Edit");
+                        document.getElementById("events").appendChild(editE);
+
+                        const deleteE = document.createElement("input");
+                        deleteE.setAttribute("type", "button");
+                        deleteE.setAttribute("id", deleteEventId);
+                        deleteE.setAttribute("value", "Delete");
+                        document.getElementById("events").appendChild(deleteE);
+                    }
+                    
+                }
+
+                // hide everything except for calendar, log in, sign in, next and prev buttons.
+                $("#backEvents").hide();
+                $("#back").hide();
+                $("#newEvent").hide();
+                $("#sortingLabel").hide();
+                $("#sorting").hide();
+                $("#sortBtn").hide();
+
+                $("#sortBtn").click(function (event) {
+
+                    let sortVal = $('#sorting');
+                    if (sortVal.val() === '') {
+                        alert("Please select an item from the list and then proceed!");
+                        $('#sorting').focus();
+
+                        return false;
+                    }
+                    else {
+                        let sortKey = "";
+                        if (sortVal.val() == "title"){
+                            sortKey = "eventTitle";
+                        }else if (sortVal.val() == "priority"){
+                            sortKey = "priority";
+                        }else if (sortVal.val() == "time"){
+                            sortKey = "eventTime";
+                        }
+
+                        console.log("selected: "+ sortVal.val());
+                        sortData = { 
+                            day: date,
+                            month: currMonth,
+                            year: currYear,
+                             
+                            sortVal: sortKey
+                        };
+                        console.log(sortData);
+                        // get all events and display them.
+                        fetch('getEvents.php', {
+                            method: "POST",
+                            body: JSON.stringify(sortData),
+                        })
+                        .then(response => response.json())
+                        .then(response => response.success ? setEvents(response, event) : "not found")
+                        .catch(err => alert(err));
+                    }
+                });
+
+
+                // call that function showPriorities() to draw with the appropriate data.
+                let len = 30;
+                if (currMonth == 2){
+                    len = 28;
+                    // check if its a leap year
+                    if (currYear % 4 == 0 && currYear % 100 != 0 || currYear % 4 == 0 && currYear % 400 == 0){
+                        len = 29;
+                    }
+                }
+                if (currMonth == 1 || currMonth == 3 || currMonth == 5 || currMonth == 7 || currMonth == 8 || currMonth == 10 || currMonth == 12){
+                    len = 31;
+                }
+
+                // set priority data
+                priorityData = {
+                    currMonth: currMonth,
+                    currYear: currYear,
+                     
+                    monthLen: len
+                }
+                fetch('getPriorities.php', {
+                            method: "POST",
+                            body: JSON.stringify(priorityData),
+                        })
+                        .then(response => response.json())
+                        .then(response => showPriorities(response, event))
+                        .catch(err => alert(err));
+
+                 
+                // call that function showToDo() to draw with the appropriate data.
+                // https://phoenixnap.com/kb/how-to-get-the-current-date-and-time-javascript
+                let today = new Date();
+                let todayDate = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+                todoData = {
+                    token: localStorage.getItem("token"),
+                    date: todayDate
+                }
+                    fetch('getToDo.php', {
+                        method: "POST",
+                        body: JSON.stringify(todoData),
+                    })
+                    .then(response => response.json())
+                    .then(response => showToDo(response, event))
+                    .catch(err => alert(err));
+                
+                
+
+                // check if log out button is clicked and logout if so.
+                $(".logout").click(function(event){
+                    localStorage.setItem("token", "");
+                    let ev3 = document.getElementById("highPriorities");
+                    while (ev3.lastChild) {
+                        ev3.removeChild(ev3.lastChild);
+                    }
+                    let ev4 = document.getElementById("todo");
+                    while (ev4.lastChild) {
+                        ev4.removeChild(ev4.lastChild);
+                    }
+
+                    data = {}
+                    fetch('logout.php', {
+                            method: "POST",
+                            body: JSON.stringify(data),
+                        })
+                        .then(response => response.json())
+                        .then(response => alert(response.success ? "logged out" : "not logged out"))
+                        .catch(err => alert(err));
+                });
+                // end of log out function
+
+                
+
+                // back to events button
+                $("#backEvents").click(function(event){
+                    //event.preventDefault();
+                    // show the back to calendar button and new event button.
+                    $("#back").show();
+                    $("#newEvent").show();
+                    
+                    // remove the text boxes and edit button from edit event
+                    $("#editEventTitleId").remove();
+                    $("#editEventContentId").remove();
+                    $("#editEventTimeId").remove();
+                    $("#editSaveEventBtn").remove();
+
+
+                    // remove the text boxes and save button from create event
+                    $("#newEventTitleId").remove();
+                    $("#newEventContentId").remove();
+                    $("#newEventTimeId").remove();
+                    $("#saveEventBtn").remove();
+                    $("#priority").remove();
+                    // grab and show events in database again.
+                    // ----------------------------------
+                    fetch('getEvents.php', {
+                            method: "POST",
+                            body: JSON.stringify(data),
+                        })
+                        .then(response => response.json())
+                        .then(response => response.success ? setEvents(response, event) : "not found")
+                        .catch(err => alert(err));
+
+                    // $("#events").hide();
+                    $("#backEvents").hide();
+                    //-----------------------------------
+                });
+                // end of back events button function
+
+
+                // functionality of new event button
+                $("#newEvent").click(function(event){
+
+                    // remove the text boxes and save button
+                    $("#newEventTitleId").remove();
+                    $("#newEventContentId").remove();
+                    $("#newEventTimeId").remove();
+                    $("#saveEventBtn").remove();
+                    $("#priority").remove();
+
+                    // show the button to go back to events list, hide other buttons.
+                    event.preventDefault();
+                    $("#backEvents").show();
+
+
+                    $("#back").hide();
+                    $("#newEvent").hide();
+                    $("#sortingLabel").hide();
+                    $("#sorting").hide();
+                    $("#sortBtn").hide();
+
+                    // remove everything in events and hide them.
+                    let ev = document.getElementById("events");
+                    while (ev.lastChild) {
+                        ev.removeChild(ev.lastChild);
+                    }
+                    // $("#events").hide();
+
+                    // create text boxes for new event.
+                    const newEventTitleDisp = document.createElement("textarea");
+                    newEventTitleDisp.setAttribute("rows", "1");
+                    newEventTitleDisp.setAttribute("cols", "50");
+                    newEventTitleDisp.setAttribute("wrap", "soft");
+                    newEventTitleDisp.setAttribute("name", "Title");
+                    newEventTitleDisp.setAttribute("placeholder", "Title");
+                    newEventTitleDisp.setAttribute("id", "newEventTitleId");
+                    document.getElementById("createEvent").appendChild(newEventTitleDisp);
+
+                    const newEventContentDisp = document.createElement("textarea");
+                    newEventContentDisp.setAttribute("rows", "5");
+                    newEventContentDisp.setAttribute("cols", "50");
+                    newEventContentDisp.setAttribute("wrap", "soft");
+                    newEventContentDisp.setAttribute("name", "Content");
+                    newEventContentDisp.setAttribute("placeholder", "Description");
+                    newEventContentDisp.setAttribute("id", "newEventContentId");
+                    document.getElementById("createEvent").appendChild(newEventContentDisp);
+
+                    const newEventTimeDisp = document.createElement("textarea");
+                    newEventTimeDisp.setAttribute("rows", "1");
+                    newEventTimeDisp.setAttribute("cols", "25");
+                    newEventTimeDisp.setAttribute("wrap", "soft");
+                    newEventTimeDisp.setAttribute("name", "Title");
+                    newEventTimeDisp.setAttribute("placeholder", "YYYY-MM-DD HH:MM:SS");
+                    newEventTimeDisp.setAttribute("id", "newEventTimeId");
+                    document.getElementById("createEvent").appendChild(newEventTimeDisp);
+
+                    const newEventRadio1 = document.createElement("textarea");
+                    newEventRadio1.setAttribute("rows", "1");
+                    newEventRadio1.setAttribute("cols", "15");
+                    newEventRadio1.setAttribute("wrap", "soft");
+                    newEventRadio1.setAttribute("name", "priority");
+                    newEventRadio1.setAttribute("placeholder", "priority: 1,2,3");
+                    newEventRadio1.setAttribute("id", "priority");
+                    document.getElementById("createEvent").appendChild(newEventRadio1);
+
+                    const submitBtn = document.createElement("input");
+                    submitBtn.setAttribute("type", "button");
+                    submitBtn.setAttribute("value", "save");
+                    submitBtn.setAttribute("id", "saveEventBtn");
+                    document.getElementById("createEvent").appendChild(submitBtn);
+
+                    // save events button
+                    $("#saveEventBtn").click(function(event){
+                        // grab new event data and save to database.
+                        let title = document.getElementById("newEventTitleId").value;
+                        let content = document.getElementById("newEventContentId").value;
+                        let time = document.getElementById("newEventTimeId").value;
+                        let priority = document.getElementById("priority").value;
+                        if (priority == 1 || priority == 2 || priority == 3){
+                            newEventData = {
+                                title: title,
+                                content: content,
+                                time: time,
+                                token: localStorage.getItem("token"),
+                                priority: priority
+                            }
+                        }else{
+                            alert("Priority has to be 1, 2, or 3!");
+                            newEventData = {
+                                title: title,
+                                content: content,
+                                token: localStorage.getItem("token"),
+                                time: time
+                            }
+                        }
+                        
+                        fetch('saveEvent.php', {
+                                method: "POST",
+                                body: JSON.stringify(newEventData),
+                            })
+                            .then(response => response.json())
+                            .then(response => response.success ? alert("saved!") : alert("not saved"))
+                            .catch(err => alert(err));
+                    });
+                    // end of save button function.
+                });
+                // end of new event.
+
+
+                // back button to go back to calendar
+                $("#back").click(function(event){
+                    event.preventDefault();
+                    // show the high priority and to do list labels
+                    $("#calendarLabels").show();
+                    $("#calendarLabels2").show();
+                    $("#sortingLabel").hide();
+                    $("#sorting").hide();
+                    $("#sortBtn").hide();
+                    $(".weekdays").show();
+                    $(".logout").show();
+
+                    // show the calendar and hide events (also delete events), and back button.
+                    $(".days").show();
+                    $("#prevMonth").show();
+                    $("#nextMonth").show();
+                    $("#back").hide();
+                    $("#newEvent").hide();
+                    
+                    let ev = document.getElementById("events");
+                    
+                    while (ev.lastChild) {
+                        ev.removeChild(ev.lastChild);
+                    }
+                    // $("#events").hide();
+
+                    // call that function showPriorities() to draw with the appropriate data.
+                    let len = 30;
+                    if (currMonth == 2){
+                        len = 28;
+                        // check if its a leap year
+                        if (currYear % 4 == 0 && currYear % 100 != 0 || currYear % 4 == 0 && currYear % 400 == 0){
+                            len = 29;
+                        }
+                    }
+                    if (currMonth == 1 || currMonth == 3 || currMonth == 5 || currMonth == 7 || currMonth == 8 || currMonth == 10 || currMonth == 12){
+                        len = 31;
+                    }
+
+                    // set priority data
+                    priorityData = {
+                        currMonth: currMonth,
+                        currYear: currYear,
+                         
+                        monthLen: len
+                    }
+                    fetch('getPriorities.php', {
+                                method: "POST",
+                                body: JSON.stringify(priorityData),
+                            })
+                            .then(response => response.json())
+                            .then(response => showPriorities(response, event))
+                            .catch(err => alert(err));
+
+                    // https://phoenixnap.com/kb/how-to-get-the-current-date-and-time-javascript
+                    let today = new Date();
+                    let todayDate = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+                    todoData = {
+                         
+                        date: todayDate
+                    }
+                    fetch('getToDo.php', {
+                        method: "POST",
+                        body: JSON.stringify(todoData),
+                    })
+                    .then(response => response.json())
+                    .then(response => showToDo(response, event))
+                    .catch(err => alert(err));
+                });
+                // end of back button.
+
+                
+
+
+                // checking if edit or delete button is clicked
+                $("#events").click(function(event){
+                    let functionId = event.target.id;
+                    
+                    // editing
+
+                    if(functionId.slice(0,6) == "eventE"){
+                        const save = function(response){
+                            let editId = response.editId;
+                            
+                            $("#editSaveEventBtn").click(function(event){
+                                let title = document.getElementById("editEventTitleId").value;
+                                let content = document.getElementById("editEventContentId").value;
+                                let time = document.getElementById("editEventTimeId").value;
+                                let priority = document.getElementById("editPriority").value;
+                                let newEventData = {};
+                                if (priority == 1 || priority == 2 || priority == 3){
+                                    newEventData = {
+                                        eventId: editId,
+                                        title: title,
+                                        content: content,
+                                        time: time,
+                                        token: localStorage.getItem("token"),
+                                        priority: priority
+                                    }
+                                }else{
+                                    alert("Priority has to be 1, 2, or 3!");
+                                    newEventData = {
+                                        eventId: editId,
+                                        title: title,
+                                        content: content,
+                                        token: localStorage.getItem("token"),
+                                        time: time
+                                    }
+                                }
+                                fetch('saveEventEdit.php', {
+                                    method: "POST",
+                                    body: JSON.stringify(newEventData),
+                                })
+                                .then(response => response.json())
+                                .then(response => response.success ? alert("edit saved") : alert("not saved"))
+                                .catch(err => alert(err + "here"));
+                            });
+                        }
+                        const drawEdit = function(response, event){
+                            // hide the back to calendar button and new event button
+                            // show the back to events button
+                            $("#back").hide();
+                            $("#backEvents").show();
+                            $("#newEvent").hide();
+                            // remove the text boxes and save button
+                            $("#editEventTitleId").remove();
+                            $("#editEventContentId").remove();
+                            $("#editEventTimeId").remove();
+                            $("#editSaveEventBtn").remove();
+                            $("#editPriority").remove();
+                            
+                            $("#sortingLabel").hide();
+                            $("#sorting").hide();
+                            $("#sortBtn").hide();
+
+                            let editTitle = response.eventTitle;
+                            let editContent = response.eventContent;
+                            let editTime = response.eventTime;
+                            let editPriority = response.priority;
+
+                            const newEventTitleDisp = document.createElement("textarea");
+                            newEventTitleDisp.setAttribute("rows", "1");
+                            newEventTitleDisp.setAttribute("cols", "50");
+                            newEventTitleDisp.setAttribute("wrap", "soft");
+                            newEventTitleDisp.setAttribute("name", "Title");
+                            newEventTitleDisp.setAttribute("id", "editEventTitleId");
+                            newEventTitleDisp.textContent = editTitle;
+                            document.getElementById("createEvent").appendChild(newEventTitleDisp);
+
+                            const newEventContentDisp = document.createElement("textarea");
+                            newEventContentDisp.setAttribute("rows", "5");
+                            newEventContentDisp.setAttribute("cols", "50");
+                            newEventContentDisp.setAttribute("wrap", "soft");
+                            newEventContentDisp.setAttribute("name", "Content");
+                            newEventContentDisp.setAttribute("id", "editEventContentId");
+                            newEventContentDisp.textContent = editContent;
+                            document.getElementById("createEvent").appendChild(newEventContentDisp);
+
+                            const newEventTimeDisp = document.createElement("textarea");
+                            newEventTimeDisp.setAttribute("rows", "1");
+                            newEventTimeDisp.setAttribute("cols", "10");
+                            newEventTimeDisp.setAttribute("wrap", "soft");
+                            newEventTimeDisp.setAttribute("name", "Title");
+                            newEventTimeDisp.setAttribute("id", "editEventTimeId");
+                            newEventTimeDisp.textContent = editTime;
+                            document.getElementById("createEvent").appendChild(newEventTimeDisp);
+
+                            const editEventRadio1 = document.createElement("textarea");
+                            editEventRadio1.setAttribute("rows", "1");
+                            editEventRadio1.setAttribute("cols", "15");
+                            editEventRadio1.setAttribute("wrap", "soft");
+                            editEventRadio1.setAttribute("name", "priority");
+                            editEventRadio1.setAttribute("placeholder", "priority: 1,2,3");
+                            editEventRadio1.setAttribute("id", "editPriority");
+                            editEventRadio1.textContent = editPriority;
+                            document.getElementById("createEvent").appendChild(editEventRadio1);
+
+                            const submitBtn = document.createElement("input");
+                            submitBtn.setAttribute("type", "button");
+                            submitBtn.setAttribute("id", "editSaveEventBtn");
+                            submitBtn.setAttribute("value", "edit");
+                            document.getElementById("createEvent").appendChild(submitBtn);
+
+                            return {
+                                "success":false,
+                                "editId":response.editId,
+                                "eventTitle":editTitle,
+                                "eventContent":editContent,
+                                "eventTime":editTime,
+                                "priority":editPriority
+                            };
+                        }
+                        let idx = 0;
+                        for (let i = functionId.length - 1; i > 0; i--){
+                            if (functionId[i] == "t"){
+                                idx = i+1;
+                                break;
+                            }
+                        }
+                        let editId = functionId.slice(idx, functionId.length);
+                        $("#events").hide();
+                        eventEdit = {
+                            eventId: editId
+                        }
+                        fetch('getEventEdit.php', {
+                            method: "POST",
+                            body: JSON.stringify(eventEdit),
+                        })
+                        .then(response => response.json())
+                        .then(response => drawEdit(response, event))
+                        .then(response => save(response))
+                        .catch(err => alert(err + "here"));
+
+                        
+                    }
+                    else if (functionId.slice(0,6) == "eventD"){
+                        // get the id of the event to delete.
+                        let idx = 0;
+                        for (let i = functionId.length - 1; i > 0; i--){
+                            if (functionId[i] == "e"){
+                                idx = i+1;
+                                break;
+                            }
+                        }
+                        let deleteId = functionId.slice(idx, functionId.length);
+                        deleteData = {
+                            token: localStorage.getItem("token"),
+                            id: deleteId
+                        }
+                        fetch('deleteEvent.php', {
+                            method: "POST",
+                            body: JSON.stringify(deleteData),
+                        })
+                        .then(response => response.json())
+                        .catch(err => alert(err));
+
+                        // get all events and display them.
+                        fetch('getEvents.php', {
+                            method: "POST",
+                            body: JSON.stringify(data),
+                        })
+                        .then(response => response.json())
+                        .then(response => response.success ? setEvents(response, event) : "not found")
+                        .catch(err => alert(err));
+                    }
+                });
+
+                // check if a day is clicked on.
+                $(".days li").click(function(event){
+                    event.preventDefault();
+                    // get the date that was clicked on.
+                    let id = $(this).attr('id');
+                    date = document.getElementById(id).textContent;
+
+                    if(date != ""){
+                        // go to the events page.
+                        // hide calendar, next and prev buttons, show events and back to calendar button
+                        $(".days").hide();
+                        $("#back").show();
+                        $("#newEvent").show();
+                        $("#prevMonth").hide();
+                        $("#nextMonth").hide();
+                        $("#sortingLabel").show();
+                        $("#sorting").show();
+                        $("#sortBtn").show();
+
+                        // set data to date.
+                        data = { 
+                            day: date,
+                            month: currMonth,
+                             
+                            year: currYear
+                        };
+                        
+                        // get all events and display them.
+                        fetch('getEvents.php', {
+                            method: "POST",
+                            body: JSON.stringify(data),
+                        })
+                        .then(response => response.json())
+                        .then(response => response.success ? setEvents(response, event) : "not found")
+                        .catch(err => alert(err));
+                    }                    
+                });
+                // end of day click.
+            });
+            // done with all click stuff.
+
+            // get the first day of the current month (day of week).
+            let currMonth;
+            let currYear;
+            let date;
+            
+            const setCurrMonth = function(){
+                let todayCalendar = new Date();
+                currMonth = (todayCalendar.getMonth() * 1) + 1;
+                currYear = todayCalendar.getFullYear() * 1;
+            }
+
+            const printCalendar = function (){
+                let currMonthStartDayString = String(currMonth) + "/1/" + String(currYear);
+                let currMonthStartDate = new Date(currMonthStartDayString);
+                let currMonthStartDay = currMonthStartDate.getDay();
+                document.getElementById("currMonth").textContent = currMonth;
+                document.getElementById("currYear").textContent = currYear;
+                for(let i = 1; i <= 42; i++){
+                    currentSlot = "slot" + String(i);
+                    document.getElementById(currentSlot).textContent = "";
+                }
+                let end = 30;
+                if (currMonth == 2){
+                    end = 28;
+                    // check if its a leap year
+                    if (currYear % 4 == 0 && currYear % 100 != 0 || currYear % 4 == 0 && currYear % 400 == 0){
+                        end = 29;
+                    }
+                }
+                if (currMonth == 1 || currMonth == 3 || currMonth == 5 || currMonth == 7 || currMonth == 8 || currMonth == 10 || currMonth == 12){
+                    end = 31;
+                }
+                for(let i = currMonthStartDay; i < end + currMonthStartDay; i++){
+                    if (currMonthStartDay == 0) {
+                        currentSlot = "slot" + String(i + 7);
+                    }
+                    else{
+                        currentSlot = "slot" + String(i);
+                    }
+                    
+                    
+                    document.getElementById(currentSlot).textContent = i - currMonthStartDay + 1;
+                }
+            }
+
+            const updateMonthNext = function(event){
+                event.preventDefault();
+                let state = "hello";
+                if (currMonth == 12){
+                    currMonth = 1;
+                    currYear = currYear + 1;
+                }else{
+                    currMonth = currMonth + 1;
+                }
+                printCalendar();
+                // call that function showPriorities() to draw with the appropriate data.
+                let len = 30;
+                if (currMonth == 2){
+                    len = 28;
+                    // check if its a leap year
+                    if (currYear % 4 == 0 && currYear % 100 != 0 || currYear % 4 == 0 && currYear % 400 == 0){
+                        len = 29;
+                    }
+                }
+                if (currMonth == 1 || currMonth == 3 || currMonth == 5 || currMonth == 7 || currMonth == 8 || currMonth == 10 || currMonth == 12){
+                    len = 31;
+                }
+
+                // set priority data
+                priorityData = {
+                    currMonth: currMonth,
+                    currYear: currYear,
+                     
+                    monthLen: len
+                }
+                fetch('getPriorities.php', {
+                            method: "POST",
+                            body: JSON.stringify(priorityData),
+                        })
+                        .then(response => response.json())
+                        .then(response => showPriorities(response, event))
+                        .catch(err => alert(err));
+                // call that function showToDo() to draw with the appropriate data.
+                // https://phoenixnap.com/kb/how-to-get-the-current-date-and-time-javascript
+                let today = new Date();
+                let todayDate = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+                todoData = {
+                     
+                    date: todayDate
+                }
+                fetch('getToDo.php', {
+                    method: "POST",
+                    body: JSON.stringify(todoData),
+                })
+                .then(response => response.json())
+                .then(response => showToDo(response, event))
+                .catch(err => alert(err));
+            }
+            const updateMonthPrev = function(event){
+                event.preventDefault();
+                if (currMonth == 1){
+                    currMonth = 12;
+                    currYear = currYear - 1;
+                }else{
+                    currMonth = currMonth - 1;
+                }
+                printCalendar();
+                // call that function showPriorities() to draw with the appropriate data.
+                let len = 30;
+                if (currMonth == 2){
+                    len = 28;
+                    // check if its a leap year
+                    if (currYear % 4 == 0 && currYear % 100 != 0 || currYear % 4 == 0 && currYear % 400 == 0){
+                        len = 29;
+                    }
+                }
+                if (currMonth == 1 || currMonth == 3 || currMonth == 5 || currMonth == 7 || currMonth == 8 || currMonth == 10 || currMonth == 12){
+                    len = 31;
+                }
+
+                // set priority data
+                priorityData = {
+                    currMonth: currMonth,
+                    currYear: currYear,
+                     
+                    monthLen: len
+                }
+                fetch('getPriorities.php', {
+                            method: "POST",
+                            body: JSON.stringify(priorityData),
+                        })
+                        .then(response => response.json())
+                        .then(response => showPriorities(response, event))
+                        .catch(err => alert(err));
+
+                // call that function showToDo() to draw with the appropriate data.
+                // https://phoenixnap.com/kb/how-to-get-the-current-date-and-time-javascript
+                let today = new Date();
+                let todayDate = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+                todoData = {
+                     
+                    date: todayDate
+                }
+                fetch('getToDo.php', {
+                    method: "POST",
+                    body: JSON.stringify(todoData),
+                })
+                .then(response => response.json())
+                .then(response => showToDo(response, event))
+                .catch(err => alert(err));
+            }
+            setCurrMonth();
+            printCalendar();
+            document.getElementById('nextMonth').addEventListener("click", updateMonthNext);
+            document.getElementById('prevMonth').addEventListener("click", updateMonthPrev);
+            
+
+            document.getElementById('logIn').addEventListener("click", function(){
+                event.preventDefault();
+                let user = document.getElementById('name').value;
+                let password = document.getElementById('password').value;
+                // alert(user);
+                const data = { 
+                    userName: user,
+                    password: password
+                };
+                fetch('authenticate.php', {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    //headers: { 'content-type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(response => {
+                    if(response.success) {
+                        localStorage.setItem("token", response.token);
+                        console.log(response.token);
+                    }else{ 
+                        alert(`You were not logged in ${response.message}`);
+                    }
+                })
+                .catch(err => alert(err));
+                // call that function showPriorities() to draw with the appropriate data.
+                let len = 30;
+                if (currMonth == 2){
+                    len = 28;
+                    // check if its a leap year
+                    if (currYear % 4 == 0 && currYear % 100 != 0 || currYear % 4 == 0 && currYear % 400 == 0){
+                        len = 29;
+                    }
+                }
+                if (currMonth == 1 || currMonth == 3 || currMonth == 5 || currMonth == 7 || currMonth == 8 || currMonth == 10 || currMonth == 12){
+                    len = 31;
+                }
+
+                // set priority data
+                priorityData = {
+                    currMonth: currMonth,
+                    currYear: currYear,
+                     
+                    monthLen: len
+                }
+                fetch('getPriorities.php', {
+                            method: "POST",
+                            body: JSON.stringify(priorityData),
+                        })
+                        .then(response => response.json())
+                        .then(response => showPriorities(response, event))
+                        .catch(err => alert(err));
+
+                // call that function showToDo() to draw with the appropriate data.
+                // https://phoenixnap.com/kb/how-to-get-the-current-date-and-time-javascript
+                let today = new Date();
+                let todayDate = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+                // console.log(localStorage.getItem("token"));
+                todoData = {
+                    token: localStorage.getItem("token"),
+                    date: todayDate
+                }
+                console.log(localStorage.getItem("token"));
+                    fetch('getToDo.php', {
+                    method: "POST",
+                    body: JSON.stringify(todoData),
+                })
+                .then(response => response.json())
+                .then(response => showToDo(response, event))
+                .catch(err => alert(err));
+                
+                
+            });
+
+            document.getElementById('signUp').addEventListener("click", function(){
+                event.preventDefault();
+                let user = document.getElementById('newName').value;
+                let password = document.getElementById('newPassword').value;
+                let fname = document.getElementById('newFname').value;
+                let lname = document.getElementById('newLname').value;
+                const data = { userName: user,
+                                password: password,
+                                fname: fname,
+                                lname: lname
+                };
+                fetch('createAccount.php', {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                })
+                .then(response => response.json())
+                .then(response => {
+                    if(response.success) {
+                        localStorage.setItem("token", response.token);
+                        console.log(response.token);
+                    }else{ 
+                        alert(`user not added: ${response.message}`);
+                    }
+                })
+                .catch(err => alert(err));
+            });
+        </script>
+        
+    </body>
+
+</html>
